@@ -28,3 +28,18 @@ BuildContext bisa dianggap sebagai “alamat” atau “lokasi” dari sebuah wi
 
 6. Apa itu hot reload dan bedanya dengan hot restart?
 Hot reload adalah fitur Flutter yang memungkinkan kamu melihat hasil perubahan kode hampir seketika tanpa kehilangan posisi atau data di aplikasi. Misalnya, kalau kamu ubah teks atau warna, tinggal simpan dan hasilnya langsung muncul. Sedangkan hot restart membuat aplikasi dijalankan ulang dari awal, jadi semua data dan variabel akan di-reset. Intinya, hot reload cepat untuk ubah tampilan, sedangkan hot restart dipakai kalau ada perubahan besar di struktur aplikasi.
+
+
+TUGAS 8
+1. Perbedaan antara Navigator.push() dan Navigator.pushReplacement() serta kapan digunakan
+Navigator.push() digunakan untuk membuka halaman baru di atas halaman sebelumnya, jadi pengguna masih bisa balik lagi pakai tombol back. Sementara Navigator.pushReplacement() mengganti halaman saat ini dengan halaman baru, jadi halaman sebelumnya langsung hilang dari stack dan nggak bisa dikembaliin lagi.
+Di aplikasi Football Shop, push() cocok buat navigasi dari Menu ke halaman form Tambah Produk biar pengguna bisa balik. Sedangkan pushReplacement() bisa dipakai setelah produk disimpan, biar langsung pindah ke halaman daftar produk tanpa bisa balik ke form.
+
+2. Pemanfaatan hierarchy widget seperti Scaffold, AppBar, dan Drawer
+Ketiga widget ini penting buat bikin struktur halaman yang konsisten di semua bagian aplikasi. Scaffold jadi kerangka utama halaman tempat naro komponen kayak AppBar, body, sama Drawer. AppBar dipakai buat nampilin judul halaman atau identitas aplikasi biar pengguna tahu mereka tetap di dalam Football Shop. Sedangkan Drawer berisi menu navigasi biar user bisa pindah antarhalaman dengan mudah tanpa tombol tambahan.
+
+3. Kelebihan menggunakan layout widget seperti Padding, SingleChildScrollView, dan ListView pada form
+Widget layout ini bantu tampilan form biar tetap rapi dan responsif di berbagai ukuran layar. Padding ngasih jarak antar elemen biar nggak nempel satu sama lain, SingleChildScrollView bikin form bisa di-scroll saat layar kecil supaya nggak overflow, dan ListView bantu nampilin banyak elemen form secara vertikal dengan mudah. Misalnya di halaman Tambah Produk, form disusun pakai Padding dan ListView supaya semua field tertata rapi dan bisa di-scroll mulus.
+
+4. Penyesuaian warna tema agar aplikasi punya identitas visual yang konsisten
+Warna tema bikin aplikasi punya ciri khas yang mudah diingat pengguna. Di Football Shop, warna biru dipakai secara konsisten di AppBar, tombol utama, dan elemen penting lain buat ngasih kesan profesional dan sporty. Dengan begitu, tiap halaman tetap terasa satu kesatuan, nggak terpisah-pisah.
