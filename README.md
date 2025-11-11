@@ -1,3 +1,5 @@
+TUGAS 7
+
 1. Apa itu widget tree dan hubungan parent-child di Flutter?
 Widget tree di Flutter bisa dibilang seperti “pohon keluarga” dari tampilan aplikasi. Setiap elemen di layar—seperti teks, tombol, atau layout—adalah sebuah widget yang saling bertingkat. Widget paling atas disebut parent (induk), dan widget di dalamnya disebut child (anak). Misalnya, Scaffold bisa jadi induk dari Column, dan Column punya beberapa anak seperti ElevatedButton atau Text. Jadi, hubungan parent-child ini menentukan bagaimana tampilan disusun dan bagaimana satu widget bisa mengatur posisi atau perilaku widget lain di dalamnya.
 
@@ -31,6 +33,7 @@ Hot reload adalah fitur Flutter yang memungkinkan kamu melihat hasil perubahan k
 
 
 TUGAS 8
+
 1. Perbedaan antara Navigator.push() dan Navigator.pushReplacement() serta kapan digunakan
 Navigator.push() digunakan untuk membuka halaman baru di atas halaman sebelumnya, jadi pengguna masih bisa balik lagi pakai tombol back. Sementara Navigator.pushReplacement() mengganti halaman saat ini dengan halaman baru, jadi halaman sebelumnya langsung hilang dari stack dan nggak bisa dikembaliin lagi.
 Di aplikasi Football Shop, push() cocok buat navigasi dari Menu ke halaman form Tambah Produk biar pengguna bisa balik. Sedangkan pushReplacement() bisa dipakai setelah produk disimpan, biar langsung pindah ke halaman daftar produk tanpa bisa balik ke form.

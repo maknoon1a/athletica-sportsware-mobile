@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+// Card untuk nampilin satu produk
+// Bentuknya horizontal: gambar di kiri, info di kanan
 class ProductCard extends StatelessWidget {
   final String name;
   final int price;
@@ -21,17 +23,18 @@ class ProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 4,
+      elevation: 2, // Shadow tipis biar ada depth dikit
       margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
+        side: const BorderSide(color: Colors.black12, width: 1), // Border tipis
       ),
       child: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 🔹 Gambar thumbnail
+            // Gambar thumbnail produk
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Image.network(
@@ -39,6 +42,7 @@ class ProductCard extends StatelessWidget {
                 width: 90,
                 height: 90,
                 fit: BoxFit.cover,
+                // Kalo gambar gagal load, tampilin placeholder abu-abu
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
                     width: 90,
@@ -51,28 +55,31 @@ class ProductCard extends StatelessWidget {
             ),
             const SizedBox(width: 16),
 
-            // 🔹 Info produk
+            // Info produk (nama, kategori, deskripsi, harga)
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Nama produk
+                  // Baris pertama: nama produk & badge "Featured" (kalo ada)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        name,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                      Expanded(
+                        child: Text(
+                          name,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
+                      // Badge "Featured" muncul cuma kalo isFeatured == true
                       if (isFeatured)
                         Container(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: Colors.orange.shade400,
+                            color: Colors.black,
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: const Text(
@@ -88,29 +95,28 @@ class ProductCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
 
-                  // Kategori
+                  // Kategori (dengan warna abu-abu)
                   Text(
                     category,
-                    style: TextStyle(color: Colors.grey.shade600),
+                    style: const TextStyle(color: Colors.grey),
                   ),
-
                   const SizedBox(height: 6),
 
-                  // Deskripsi singkat
+                  // Deskripsi produk (maksimal 2 baris)
                   Text(
                     description,
                     maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+                    overflow: TextOverflow.ellipsis, // Kalo kepanjangan, tampilin "..."
                   ),
-
                   const SizedBox(height: 6),
 
-                  // Harga
+                  // Harga produk
                   Text(
                     'Rp $price',
                     style: const TextStyle(
-                      color: Colors.blue,
+                      color: Colors.black,
                       fontWeight: FontWeight.bold,
+                      fontSize: 16,
                     ),
                   ),
                 ],

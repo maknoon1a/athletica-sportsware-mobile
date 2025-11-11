@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../screens/menu.dart';
 import '../screens/form_page.dart';
 
+// Drawer alias menu samping yang bisa di-swipe dari kiri
+// Isinya navigasi ke halaman-halaman utama
 class LeftDrawer extends StatelessWidget {
   const LeftDrawer({super.key});
 
@@ -9,13 +11,11 @@ class LeftDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Drawer(
       child: ListView(
-        padding: EdgeInsets.zero, // biar header nempel di atas
+        padding: EdgeInsets.zero, // Biar header nempel sempurna di atas
         children: [
-          // Drawer Header
+          // Header drawer - bagian atas yang ada icon & judul
           DrawerHeader(
-            decoration: BoxDecoration(
-              color: Colors.blue.shade700,
-            ),
+            decoration: const BoxDecoration(color: Colors.black),
             child: const Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -34,14 +34,12 @@ class LeftDrawer extends StatelessWidget {
             ),
           ),
 
-          // Opsi Halaman Utama
+          // Menu ke Halaman Utama
           ListTile(
             leading: const Icon(Icons.home),
             title: const Text('Halaman Utama'),
             onTap: () {
-              // Tutup drawer dulu
-              Navigator.pop(context);
-              // Ganti halaman ke MenuPage
+              Navigator.pop(context); // Tutup drawer dulu
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => const MenuPage()),
@@ -49,7 +47,7 @@ class LeftDrawer extends StatelessWidget {
             },
           ),
 
-          // Opsi Tambah Produk
+          // Menu ke Form Tambah Produk
           ListTile(
             leading: const Icon(Icons.add_box),
             title: const Text('Tambah Produk'),

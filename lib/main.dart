@@ -2,22 +2,28 @@ import 'package:flutter/material.dart';
 import 'screens/menu.dart';
 
 void main() {
-  runApp(const FootballShopApp());
+  runApp(const MyApp());
 }
 
-class FootballShopApp extends StatelessWidget {
-  const FootballShopApp({super.key});
+// Widget utama aplikasi
+// Ini cuma setup awal aja, simpel banget
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Football Shop',
+      // Theme hitam putih biar keliatan clean & minimalis
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.black,
+          brightness: Brightness.light,
+        ),
         useMaterial3: true,
       ),
       home: const MenuPage(),
-      debugShowCheckedModeBanner: false,
+      debugShowCheckedModeBanner: false, // Ilangin banner debug di pojok
     );
   }
 }

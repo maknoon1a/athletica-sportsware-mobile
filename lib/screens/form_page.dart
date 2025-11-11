@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import '../widgets/left_drawer.dart';
+import 'menu.dart';
 
+// Halaman form untuk nambah produk baru
+// Ada validasi di setiap input biar datanya bener semua
 class ProductFormPage extends StatefulWidget {
   const ProductFormPage({super.key});
 
@@ -9,18 +12,18 @@ class ProductFormPage extends StatefulWidget {
 }
 
 class _ProductFormPageState extends State<ProductFormPage> {
-  // Kunci global untuk mengontrol status form (valid atau tidak)
+  // Key untuk ngecek validasi form secara keseluruhan
   final _formKey = GlobalKey<FormState>();
 
-  // Variabel penampung input pengguna
-  String _name = '';          // Nama produk
-  int _price = 0;             // Harga produk
-  String _description = '';   // Deskripsi produk
-  String _thumbnail = '';     // URL gambar produk
-  String _category = 'Shoes'; // Kategori default
-  bool _isFeatured = false;   // Status featured produk
+  // Variabel penampung input user
+  String _name = '';
+  int _price = 0;
+  String _description = '';
+  String _thumbnail = '';
+  String _category = 'Shoes';
+  bool _isFeatured = false;
 
-  // Daftar kategori untuk dropdown
+  // Opsi kategori yang tersedia
   final List<String> _categories = ['Shoes', 'Jersey', 'Accessories'];
 
   @override
@@ -28,50 +31,48 @@ class _ProductFormPageState extends State<ProductFormPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Tambah Produk Baru'),
-        backgroundColor: Colors.blue.shade700,
+        backgroundColor: Colors.black,
+        foregroundColor: Colors.white,
         centerTitle: true,
       ),
       drawer: const LeftDrawer(),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
-          key: _formKey, // Hubungkan form dengan GlobalKey agar bisa divalidasi
+          key: _formKey, // Pasang key biar bisa divalidasi nanti
           child: ListView(
             children: [
-              // ==================== INPUT NAMA PRODUK ====================
+              // Input nama produk
+              // Harus diisi, minimal 3 karakter, maksimal 50
               TextFormField(
                 decoration: const InputDecoration(
                   labelText: 'Product Name',
                   border: OutlineInputBorder(),
                 ),
-                // Setiap kali user mengetik, simpan nilainya ke variabel _name
                 onChanged: (value) => setState(() => _name = value),
-                // Validator digunakan untuk memastikan input valid sebelum disubmit
                 validator: (value) {
-                  // Cek apakah kosong
                   if (value == null || value.isEmpty) {
                     return 'Name cannot be empty';
                   }
-                  // Cek panjang minimal
-                  else if (value.length < 3) {
+                  if (value.length < 3) {
                     return 'Name must be at least 3 characters';
                   }
-                  // Cek panjang maksimal agar tidak terlalu panjang
-                  else if (value.length > 50) {
+                  if (value.length > 50) {
                     return 'Name cannot exceed 50 characters';
                   }
-                  return null; // Jika valid
+                  return null;
                 },
               ),
               const SizedBox(height: 16),
 
-              // ==================== INPUT HARGA PRODUK ====================
+              // Input harga produk
+              // Harus angka, gak boleh negatif
               TextFormField(
                 decoration: const InputDecoration(
                   labelText: 'Price',
                   border: OutlineInputBorder(),
                 ),
-                keyboardType: TextInputType.number, // Biar muncul keyboard angka
+                keyboardType: TextInputType.number,
                 onChanged: (value) =>
                     setState(() => _price = int.tryParse(value) ?? 0),
                 validator: (value) {
@@ -79,12 +80,10 @@ class _ProductFormPageState extends State<ProductFormPage> {
                     return 'Price cannot be empty';
                   }
                   final price = int.tryParse(value);
-                  // Cek apakah input bisa diubah ke angka
                   if (price == null) {
                     return 'Price must be a number';
                   }
-                  // Cegah harga negatif
-                  else if (price < 0) {
+                  if (price < 0) {
                     return 'Price cannot be negative';
                   }
                   return null;
@@ -92,24 +91,23 @@ class _ProductFormPageState extends State<ProductFormPage> {
               ),
               const SizedBox(height: 16),
 
-              // ==================== INPUT DESKRIPSI PRODUK ====================
+              // Input deskripsi produk
+              // Minimal 10 karakter, maksimal 200
               TextFormField(
                 decoration: const InputDecoration(
                   labelText: 'Description',
                   border: OutlineInputBorder(),
                 ),
-                maxLines: 3, // Biar textarea lebih luas
+                maxLines: 3,
                 onChanged: (value) => setState(() => _description = value),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Description cannot be empty';
                   }
-                  // Biar deskripsi gak terlalu pendek
-                  else if (value.length < 10) {
+                  if (value.length < 10) {
                     return 'Description must be at least 10 characters';
                   }
-                  // Batas panjang maksimal biar gak kebanyakan karakter
-                  else if (value.length > 200) {
+                  if (value.length > 200) {
                     return 'Description cannot exceed 200 characters';
                   }
                   return null;
@@ -117,7 +115,8 @@ class _ProductFormPageState extends State<ProductFormPage> {
               ),
               const SizedBox(height: 16),
 
-              // ==================== INPUT URL THUMBNAIL ====================
+              // Input URL gambar produk
+              // Harus format URL valid dan berakhiran .jpg/.png/.jpeg/.gif
               TextFormField(
                 decoration: const InputDecoration(
                   labelText: 'Thumbnail URL',
@@ -128,14 +127,8 @@ class _ProductFormPageState extends State<ProductFormPage> {
                   if (value == null || value.isEmpty) {
                     return 'Thumbnail URL cannot be empty';
                   }
-
-                  // Pola regex (regular expression) untuk validasi URL
-                  // ^(https?:\/\/) → harus diawali http:// atau https://
-                  // .+\.(jpg|jpeg|png|gif)$ → harus diakhiri ekstensi gambar valid
+                  // Regex buat ngecek format URL gambar
                   final pattern = r'^(https?:\/\/).+\.(jpg|jpeg|png|gif)$';
-
-                  // RegExp digunakan untuk mencocokkan pola (string matching)
-                  // Di sini kita memastikan format URL valid dan berisi file gambar
                   if (!RegExp(pattern).hasMatch(value)) {
                     return 'Invalid URL format (must start with http/https and end with .jpg/.png)';
                   }
@@ -144,40 +137,35 @@ class _ProductFormPageState extends State<ProductFormPage> {
               ),
               const SizedBox(height: 16),
 
-              // ==================== DROPDOWN KATEGORI PRODUK ====================
+              // Dropdown pilih kategori
               DropdownButtonFormField<String>(
                 decoration: const InputDecoration(
                   labelText: 'Category',
                   border: OutlineInputBorder(),
                 ),
-                value: _category, // Nilai awal kategori
-                items: _categories.map((String category) {
-                  // Buat setiap opsi dropdown dari list
-                  return DropdownMenuItem<String>(
-                    value: category,
-                    child: Text(category),
-                  );
-                }).toList(),
-                // Simpan kategori yang dipilih user
+                value: _category,
+                items: _categories
+                    .map((cat) => DropdownMenuItem(value: cat, child: Text(cat)))
+                    .toList(),
                 onChanged: (value) => setState(() => _category = value!),
               ),
               const SizedBox(height: 16),
 
-              // ==================== SWITCH FEATURED PRODUK ====================
-              // Memberi opsi apakah produk ini termasuk produk unggulan
+              // Switch buat nandain produk featured atau bukan
               SwitchListTile(
                 title: const Text('Featured Product?'),
                 value: _isFeatured,
+                activeColor: Colors.black,
                 onChanged: (value) => setState(() => _isFeatured = value),
               ),
               const SizedBox(height: 20),
 
-              // ==================== TOMBOL SIMPAN PRODUK ====================
+              // Tombol save - validasi dulu sebelum nampilin dialog
               ElevatedButton.icon(
                 icon: const Icon(Icons.save),
                 label: const Text('Save'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue.shade700,
+                  backgroundColor: Colors.black,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   textStyle: const TextStyle(
@@ -186,31 +174,43 @@ class _ProductFormPageState extends State<ProductFormPage> {
                   ),
                 ),
                 onPressed: () {
-                  // Jalankan validasi seluruh form
+                  // Cek validasi semua field
                   if (_formKey.currentState!.validate()) {
-                    // Kalau semua valid, munculkan pop-up menampilkan data yang dimasukkan user
+                    // Kalo valid, munculin dialog konfirmasi
                     showDialog(
                       context: context,
                       builder: (context) => AlertDialog(
                         title: const Text('Product Information'),
                         content: SingleChildScrollView(
-                          child: ListBody(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               Text('Name: $_name'),
+                              const SizedBox(height: 4),
                               Text('Price: $_price'),
+                              const SizedBox(height: 4),
                               Text('Description: $_description'),
+                              const SizedBox(height: 4),
                               Text('Thumbnail: $_thumbnail'),
+                              const SizedBox(height: 4),
                               Text('Category: $_category'),
-                              Text(
-                                'Featured: ${_isFeatured ? "Yes" : "No"}',
-                              ),
+                              const SizedBox(height: 4),
+                              Text('Featured: ${_isFeatured ? "Yes" : "No"}'),
                             ],
                           ),
                         ),
                         actions: [
-                          // Tombol untuk menutup dialog
                           TextButton(
-                            onPressed: () => Navigator.pop(context),
+                            onPressed: () {
+                              Navigator.pop(context); // Tutup dialog dulu
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const MenuPage(),
+                                ),
+                              );
+                            },
                             child: const Text('OK'),
                           ),
                         ],
