@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import '../screens/menu.dart';
-import '../screens/form_page.dart';
+import 'package:athletica_sportswear/screens/menu.dart';
+import 'package:athletica_sportswear/screens/form_page.dart';
+import 'package:athletica_sportswear/screens/products_list.dart';
 
-// Drawer alias menu samping yang bisa di-swipe dari kiri
-// Isinya navigasi ke halaman-halaman utama
 class LeftDrawer extends StatelessWidget {
   const LeftDrawer({super.key});
 
@@ -11,9 +10,9 @@ class LeftDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Drawer(
       child: ListView(
-        padding: EdgeInsets.zero, // Biar header nempel sempurna di atas
+        padding: EdgeInsets.zero,
         children: [
-          // Header drawer - bagian atas yang ada icon & judul
+          // Drawer Header
           DrawerHeader(
             decoration: const BoxDecoration(color: Colors.black),
             child: const Column(
@@ -30,16 +29,24 @@ class LeftDrawer extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+                SizedBox(height: 4),
+                Text(
+                  'Your one-stop football gear shop',
+                  style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 14,
+                  ),
+                ),
               ],
             ),
           ),
 
-          // Menu ke Halaman Utama
+          // Home Menu
           ListTile(
             leading: const Icon(Icons.home),
-            title: const Text('Halaman Utama'),
+            title: const Text('Home'),
             onTap: () {
-              Navigator.pop(context); // Tutup drawer dulu
+              Navigator.pop(context);
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => const MenuPage()),
@@ -47,10 +54,23 @@ class LeftDrawer extends StatelessWidget {
             },
           ),
 
-          // Menu ke Form Tambah Produk
+          // Product List Menu
+          ListTile(
+            leading: const Icon(Icons.shopping_bag),
+            title: const Text('Product List'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProductListPage()),
+              );
+            },
+          ),
+
+          // Add Product Menu
           ListTile(
             leading: const Icon(Icons.add_box),
-            title: const Text('Tambah Produk'),
+            title: const Text('Add Product'),
             onTap: () {
               Navigator.pop(context);
               Navigator.pushReplacement(

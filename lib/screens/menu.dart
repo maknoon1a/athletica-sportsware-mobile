@@ -1,28 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:athletica_sportswear/widgets/left_drawer.dart';
-import 'package:athletica_sportswear/widgets/product_card.dart';
 import 'package:athletica_sportswear/screens/form_page.dart';
+import 'package:athletica_sportswear/screens/products_list.dart';
+import 'package:athletica_sportswear/screens/login.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
 
-// Halaman utama - tampilin tombol-tombol aksi & daftar produk
 class MenuPage extends StatelessWidget {
   const MenuPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Style button yang konsisten buat semua tombol
-    final buttonStyle = ElevatedButton.styleFrom(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-      foregroundColor: Colors.white,
-    );
-
-    // Helper function buat nampilin snackbar
-    void showSnackBar(String message) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message), duration: const Duration(seconds: 2)),
-      );
-    }
+    final request = context.watch<CookieRequest>();
 
     return Scaffold(
       appBar: AppBar(
@@ -36,45 +25,48 @@ class MenuPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Judul section
+            // Welcome Section
             const Text(
-              'Daftar Produk',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              'Welcome to Football Shop',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
+            Text(
+              'Your one-stop shop for football gear',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey[600],
+              ),
+            ),
+            const SizedBox(height: 32),
 
-            // Tombol-tombol aksi (horizontal scroll kalo layar kecil)
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
+            // Menu Grid
+            Expanded(
+              child: GridView.count(
+                crossAxisCount: 2,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
                 children: [
-                  // Tombol All Products - nampilin semua produk
-                  ElevatedButton.icon(
-                    onPressed: () =>
-                        showSnackBar("Kamu telah menekan tombol All Products"),
-                    icon: const Icon(Icons.shopping_bag),
-                    label: const Text("All Products"),
-                    style: buttonStyle.copyWith(
-                      backgroundColor: WidgetStateProperty.all(Colors.grey[800]),
-                    ),
+                  MenuCard(
+                    title: 'View Products',
+                    icon: Icons.shopping_bag,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ProductListPage(),
+                        ),
+                      );
+                    },
                   ),
-                  const SizedBox(width: 12),
-
-                  // Tombol My Products - filter produk milik user
-                  ElevatedButton.icon(
-                    onPressed: () =>
-                        showSnackBar("Kamu telah menekan tombol My Products"),
-                    icon: const Icon(Icons.person),
-                    label: const Text("My Products"),
-                    style: buttonStyle.copyWith(
-                      backgroundColor: WidgetStateProperty.all(Colors.grey[700]),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-
-                  // Tombol Create Product - buka form tambah produk
-                  ElevatedButton.icon(
-                    onPressed: () {
+                  MenuCard(
+                    title: 'Add Product',
+                    icon: Icons.add_box,
+                    onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -82,39 +74,85 @@ class MenuPage extends StatelessWidget {
                         ),
                       );
                     },
-                    icon: const Icon(Icons.add),
-                    label: const Text("Create Product"),
-                    style: buttonStyle.copyWith(
-                      backgroundColor: WidgetStateProperty.all(Colors.black),
-                    ),
+                  ),
+                  MenuCard(
+                    title: 'Logout',
+                    icon: Icons.logout,
+                    onTap: () async {
+                      final response = await request.logout(
+                        "http://localhost:8000/auth/logout/",
+                      );
+                      String message = response["message"];
+                      if (context.mounted) {
+                        if (response['status']) {
+                          String uname = response["username"];
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text("$message See you again, $uname!"),
+                              backgroundColor: Colors.black,
+                            ),
+                          );
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const LoginPage(),
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(message),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                      }
+                    },
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 24),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
-            // Daftar produk dummy (nanti bisa diganti dengan data dari API)
-            Expanded(
-              child: ListView(
-                children: const [
-                  ProductCard(
-                    name: 'Nike Phantom GX',
-                    price: 2999000,
-                    description: 'Sepatu bola premium dengan kontrol bola maksimal.',
-                    thumbnail: 'https://static.nike.com/a/images/t_web_pdp_936_v2/f_auto/0f1cce41-4f49-484a-bc5e-16f782c71b32/PHANTOM+GX+CLUB+FG%2FMG.png',
-                    category: 'Sepatu',
-                    isFeatured: true,
-                  ),
-                  ProductCard(
-                    name: 'Adidas Predator',
-                    price: 2799000,
-                    description: 'Sepatu legendaris untuk pengendalian bola tingkat tinggi.',
-                    thumbnail: 'https://static.nike.com/a/images/t_web_pdp_936_v2/f_auto/0f1cce41-4f49-484a-bc5e-16f782c71b32/PHANTOM+GX+CLUB+FG%2FMG.png',
-                    category: 'Sepatu',
-                    isFeatured: false,
-                  ),
-                ],
+class MenuCard extends StatelessWidget {
+  final String title;
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const MenuCard({
+    super.key,
+    required this.title,
+    required this.icon,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.black,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 48, color: Colors.white),
+            const SizedBox(height: 12),
+            Text(
+              title,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
               ),
+              textAlign: TextAlign.center,
             ),
           ],
         ),

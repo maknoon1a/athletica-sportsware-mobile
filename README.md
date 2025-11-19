@@ -46,3 +46,23 @@ Widget layout ini bantu tampilan form biar tetap rapi dan responsif di berbagai 
 
 4. Penyesuaian warna tema agar aplikasi punya identitas visual yang konsisten
 Warna tema bikin aplikasi punya ciri khas yang mudah diingat pengguna. Di Football Shop, warna biru dipakai secara konsisten di AppBar, tombol utama, dan elemen penting lain buat ngasih kesan profesional dan sporty. Dengan begitu, tiap halaman tetap terasa satu kesatuan, nggak terpisah-pisah.
+
+TUGAS 9
+
+1. Mengapa perlu model Dart saat menggunakan JSON?
+Model Dart digunakan agar data yang diterima atau dikirim dalam bentuk JSON memiliki struktur yang jelas, tipe data yang aman, dan kompatibel dengan null-safety. Tanpa model dan langsung menggunakan Map<String, dynamic>, aplikasi rawan error seperti salah ketik key, salah tipe data, value null yang tidak terdeteksi, dan kode menjadi sulit dirawat saat aplikasi semakin besar. Dengan model, data lebih mudah divalidasi, lebih aman, dan proses pemrosesan data menjadi jauh lebih terstruktur dan mudah dibaca.
+
+2. Fungsi http dan CookieRequest
+Package http digunakan untuk request biasa yang tidak memerlukan login atau session, seperti mengambil data publik. Sementara itu, CookieRequest digunakan untuk operasi yang membutuhkan autentikasi karena ia otomatis menyimpan dan mengirim session cookie ke Django setiap kali melakukan request. Singkatnya, http cocok untuk komunikasi umum tanpa status login, sedangkan CookieRequest menangani komunikasi yang memerlukan status login agar Django bisa mengenali pengguna yang sedang aktif.
+
+3. Mengapa instance CookieRequest harus dibagikan ke semua komponen?
+Instance CookieRequest harus digunakan bersama-sama karena session login dan cookie tersimpan di dalam instance tersebut. Jika setiap halaman membuat instance baru, maka session hilang dan Django akan menganggap user belum login sehingga request lain yang membutuhkan autentikasi akan ditolak. Dengan membagikan satu instance secara global (misalnya menggunakan Provider), status login tetap konsisten dan aplikasi dapat mengakses endpoint terproteksi tanpa harus login berulang kali.
+
+4. Konfigurasi konektivitas Flutter ↔ Django
+Agar Flutter dapat berkomunikasi dengan Django, server harus mengizinkan 10.0.2.2 di ALLOWED_HOSTS karena Android Emulator mengakses komputer lokal melalui alamat itu, bukan localhost. Django juga perlu mengaktifkan CORS agar request dari aplikasi mobile tidak diblokir, mengatur konfigurasi cookie dan SameSite agar session dapat dikirim dan diterima dengan benar, serta Flutter (Android) harus diberi izin internet di AndroidManifest. Jika salah satu pengaturan ini tidak dilakukan, request dapat ditolak Django, session tidak terbaca, atau aplikasi bahkan tidak bisa melakukan koneksi jaringan sama sekali.
+
+5. Mekanisme pengiriman data hingga tampil di Flutter
+Pengguna mengisi form di Flutter, lalu data dikirim ke Django melalui request POST. Django memvalidasi dan menyimpan data ke database, kemudian Flutter melakukan GET ke endpoint terkait untuk mengambil data terbaru. Data yang diterima dalam bentuk JSON dikonversi ke model Dart, kemudian ditampilkan ke layar menggunakan widget seperti ListView, sehingga data input dari pengguna dapat tersimpan di server dan langsung muncul di tampilan aplikasi.
+
+6. Mekanisme autentikasi login, register, dan logout
+Saat register, Flutter mengirim data akun baru ke Django untuk dibuatkan user di database. Ketika login, Flutter mengirim username dan password menggunakan CookieRequest, Django memverifikasi, lalu mengembalikan session cookie yang disimpan di Flutter sehingga setiap request selanjutnya dianggap telah login. Selama session masih aktif, Django mengenali user dan mengizinkan akses ke endpoint yang membutuhkan autentikasi. Logout dilakukan dengan memanggil endpoint Django yang menghapus session, dan Flutter menghapus status login lalu kembali ke halaman login.

@@ -1,9 +1,10 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import '../widgets/left_drawer.dart';
-import 'menu.dart';
+import 'package:athletica_sportswear/widgets/left_drawer.dart';
+import 'package:athletica_sportswear/screens/menu.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
 
-// Halaman form untuk nambah produk baru
-// Ada validasi di setiap input biar datanya bener semua
 class ProductFormPage extends StatefulWidget {
   const ProductFormPage({super.key});
 
@@ -12,25 +13,33 @@ class ProductFormPage extends StatefulWidget {
 }
 
 class _ProductFormPageState extends State<ProductFormPage> {
-  // Key untuk ngecek validasi form secara keseluruhan
   final _formKey = GlobalKey<FormState>();
 
-  // Variabel penampung input user
   String _name = '';
   int _price = 0;
   String _description = '';
+  String _detail = '';
   String _thumbnail = '';
-  String _category = 'Shoes';
+  String _category = 'jersey';
+  String _productGroup = 'running';
   bool _isFeatured = false;
+  String _size = 'M';
+  String _gender = 'unisex';
+  int _stockQuantity = 0;
+  bool _isAvailable = true;
 
-  // Opsi kategori yang tersedia
-  final List<String> _categories = ['Shoes', 'Jersey', 'Accessories'];
+  final List<String> _categories = ['jersey', 'shoes', 'accessories'];
+  final List<String> _productGroups = ['running', 'football', 'basketball', 'training'];
+  final List<String> _sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+  final List<String> _genders = ['male', 'female', 'unisex'];
 
   @override
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tambah Produk Baru'),
+        title: const Text('Add New Product'),
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
         centerTitle: true,
@@ -39,11 +48,10 @@ class _ProductFormPageState extends State<ProductFormPage> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
-          key: _formKey, // Pasang key biar bisa divalidasi nanti
+          key: _formKey,
           child: ListView(
             children: [
-              // Input nama produk
-              // Harus diisi, minimal 3 karakter, maksimal 50
+              // Product Name
               TextFormField(
                 decoration: const InputDecoration(
                   labelText: 'Product Name',
@@ -57,16 +65,12 @@ class _ProductFormPageState extends State<ProductFormPage> {
                   if (value.length < 3) {
                     return 'Name must be at least 3 characters';
                   }
-                  if (value.length > 50) {
-                    return 'Name cannot exceed 50 characters';
-                  }
                   return null;
                 },
               ),
               const SizedBox(height: 16),
 
-              // Input harga produk
-              // Harus angka, gak boleh negatif
+              // Price
               TextFormField(
                 decoration: const InputDecoration(
                   labelText: 'Price',
@@ -80,19 +84,15 @@ class _ProductFormPageState extends State<ProductFormPage> {
                     return 'Price cannot be empty';
                   }
                   final price = int.tryParse(value);
-                  if (price == null) {
-                    return 'Price must be a number';
-                  }
-                  if (price < 0) {
-                    return 'Price cannot be negative';
+                  if (price == null || price < 0) {
+                    return 'Price must be a valid positive number';
                   }
                   return null;
                 },
               ),
               const SizedBox(height: 16),
 
-              // Input deskripsi produk
-              // Minimal 10 karakter, maksimal 200
+              // Description
               TextFormField(
                 decoration: const InputDecoration(
                   labelText: 'Description',
@@ -107,16 +107,23 @@ class _ProductFormPageState extends State<ProductFormPage> {
                   if (value.length < 10) {
                     return 'Description must be at least 10 characters';
                   }
-                  if (value.length > 200) {
-                    return 'Description cannot exceed 200 characters';
-                  }
                   return null;
                 },
               ),
               const SizedBox(height: 16),
 
-              // Input URL gambar produk
-              // Harus format URL valid dan berakhiran .jpg/.png/.jpeg/.gif
+              // Detail
+              TextFormField(
+                decoration: const InputDecoration(
+                  labelText: 'Additional Details',
+                  border: OutlineInputBorder(),
+                ),
+                maxLines: 3,
+                onChanged: (value) => setState(() => _detail = value),
+              ),
+              const SizedBox(height: 16),
+
+              // Thumbnail URL
               TextFormField(
                 decoration: const InputDecoration(
                   labelText: 'Thumbnail URL',
@@ -127,17 +134,16 @@ class _ProductFormPageState extends State<ProductFormPage> {
                   if (value == null || value.isEmpty) {
                     return 'Thumbnail URL cannot be empty';
                   }
-                  // Regex buat ngecek format URL gambar
                   final pattern = r'^(https?:\/\/).+\.(jpg|jpeg|png|gif)$';
                   if (!RegExp(pattern).hasMatch(value)) {
-                    return 'Invalid URL format (must start with http/https and end with .jpg/.png)';
+                    return 'Invalid URL format';
                   }
                   return null;
                 },
               ),
               const SizedBox(height: 16),
 
-              // Dropdown pilih kategori
+              // Category
               DropdownButtonFormField<String>(
                 decoration: const InputDecoration(
                   labelText: 'Category',
@@ -151,19 +157,91 @@ class _ProductFormPageState extends State<ProductFormPage> {
               ),
               const SizedBox(height: 16),
 
-              // Switch buat nandain produk featured atau bukan
+              // Product Group
+              DropdownButtonFormField<String>(
+                decoration: const InputDecoration(
+                  labelText: 'Product Group',
+                  border: OutlineInputBorder(),
+                ),
+                value: _productGroup,
+                items: _productGroups
+                    .map((group) => DropdownMenuItem(value: group, child: Text(group)))
+                    .toList(),
+                onChanged: (value) => setState(() => _productGroup = value!),
+              ),
+              const SizedBox(height: 16),
+
+              // Size
+              DropdownButtonFormField<String>(
+                decoration: const InputDecoration(
+                  labelText: 'Size',
+                  border: OutlineInputBorder(),
+                ),
+                value: _size,
+                items: _sizes
+                    .map((size) => DropdownMenuItem(value: size, child: Text(size)))
+                    .toList(),
+                onChanged: (value) => setState(() => _size = value!),
+              ),
+              const SizedBox(height: 16),
+
+              // Gender
+              DropdownButtonFormField<String>(
+                decoration: const InputDecoration(
+                  labelText: 'Gender',
+                  border: OutlineInputBorder(),
+                ),
+                value: _gender,
+                items: _genders
+                    .map((gender) => DropdownMenuItem(value: gender, child: Text(gender)))
+                    .toList(),
+                onChanged: (value) => setState(() => _gender = value!),
+              ),
+              const SizedBox(height: 16),
+
+              // Stock Quantity
+              TextFormField(
+                decoration: const InputDecoration(
+                  labelText: 'Stock Quantity',
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.number,
+                onChanged: (value) =>
+                    setState(() => _stockQuantity = int.tryParse(value) ?? 0),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Stock quantity cannot be empty';
+                  }
+                  final stock = int.tryParse(value);
+                  if (stock == null || stock < 0) {
+                    return 'Stock must be a valid positive number';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+
+              // Featured Switch
               SwitchListTile(
                 title: const Text('Featured Product?'),
                 value: _isFeatured,
                 activeColor: Colors.black,
                 onChanged: (value) => setState(() => _isFeatured = value),
               ),
+
+              // Available Switch
+              SwitchListTile(
+                title: const Text('Available for Sale?'),
+                value: _isAvailable,
+                activeColor: Colors.black,
+                onChanged: (value) => setState(() => _isAvailable = value),
+              ),
               const SizedBox(height: 20),
 
-              // Tombol save - validasi dulu sebelum nampilin dialog
+              // Save Button
               ElevatedButton.icon(
                 icon: const Icon(Icons.save),
-                label: const Text('Save'),
+                label: const Text('Save Product'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black,
                   foregroundColor: Colors.white,
@@ -173,49 +251,50 @@ class _ProductFormPageState extends State<ProductFormPage> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                onPressed: () {
-                  // Cek validasi semua field
+                onPressed: () async {
                   if (_formKey.currentState!.validate()) {
-                    // Kalo valid, munculin dialog konfirmasi
-                    showDialog(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: const Text('Product Information'),
-                        content: SingleChildScrollView(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text('Name: $_name'),
-                              const SizedBox(height: 4),
-                              Text('Price: $_price'),
-                              const SizedBox(height: 4),
-                              Text('Description: $_description'),
-                              const SizedBox(height: 4),
-                              Text('Thumbnail: $_thumbnail'),
-                              const SizedBox(height: 4),
-                              Text('Category: $_category'),
-                              const SizedBox(height: 4),
-                              Text('Featured: ${_isFeatured ? "Yes" : "No"}'),
-                            ],
-                          ),
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pop(context); // Tutup dialog dulu
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const MenuPage(),
-                                ),
-                              );
-                            },
-                            child: const Text('OK'),
-                          ),
-                        ],
-                      ),
+                    // TODO: Ganti URL sesuai deployment lo
+                    final response = await request.postJson(
+                      "http://localhost:8000/create-flutter/",
+                      jsonEncode({
+                        'name': _name,
+                        'price': _price,
+                        'description': _description,
+                        'detail': _detail,
+                        'thumbnail': _thumbnail,
+                        'category': _category,
+                        'product_group': _productGroup,
+                        'is_featured': _isFeatured,
+                        'size': _size,
+                        'gender': _gender,
+                        'stock_quantity': _stockQuantity,
+                        'is_available': _isAvailable,
+                      }),
                     );
+
+                    if (context.mounted) {
+                      if (response['status'] == 'success') {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Product successfully created!"),
+                            backgroundColor: Colors.black,
+                          ),
+                        );
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const MenuPage(),
+                          ),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(response['message'] ?? "Failed to create product"),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                    }
                   }
                 },
               ),
