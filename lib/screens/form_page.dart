@@ -21,17 +21,47 @@ class _ProductFormPageState extends State<ProductFormPage> {
   String _detail = '';
   String _thumbnail = '';
   String _category = 'jersey';
-  String _productGroup = 'running';
+  String _productGroup = 'football';
   bool _isFeatured = false;
   String _size = 'M';
   String _gender = 'unisex';
   int _stockQuantity = 0;
   bool _isAvailable = true;
 
-  final List<String> _categories = ['jersey', 'shoes', 'accessories'];
-  final List<String> _productGroups = ['running', 'football', 'basketball', 'training'];
-  final List<String> _sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
-  final List<String> _genders = ['male', 'female', 'unisex'];
+  // Sesuai dengan Django model choices
+  final List<Map<String, String>> _categories = [
+    {'value': 'jersey', 'label': 'Jersey'},
+    {'value': 'shorts', 'label': 'Shorts'},
+    {'value': 'shoes', 'label': 'Shoes'},
+    {'value': 'tracksuit', 'label': 'Tracksuit'},
+    {'value': 'accessories', 'label': 'Accessories'},
+    {'value': 'equipment', 'label': 'Equipment'},
+  ];
+
+  final List<Map<String, String>> _sportChoices = [
+    {'value': 'football', 'label': 'Football'},
+    {'value': 'basketball', 'label': 'Basketball'},
+    {'value': 'badminton', 'label': 'Badminton'},
+    {'value': 'volleyball', 'label': 'Volleyball'},
+    {'value': 'running', 'label': 'Running'},
+    {'value': 'gym', 'label': 'Gym/Fitness'},
+  ];
+
+  final List<Map<String, String>> _sizes = [
+    {'value': 'XS', 'label': 'Extra Small'},
+    {'value': 'S', 'label': 'Small'},
+    {'value': 'M', 'label': 'Medium'},
+    {'value': 'L', 'label': 'Large'},
+    {'value': 'XL', 'label': 'Extra Large'},
+    {'value': 'XXL', 'label': 'Double Extra Large'},
+  ];
+
+  final List<Map<String, String>> _genders = [
+    {'value': 'men', 'label': 'Men'},
+    {'value': 'women', 'label': 'Women'},
+    {'value': 'unisex', 'label': 'Unisex'},
+    {'value': 'kids', 'label': 'Kids'},
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +103,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
               // Price
               TextFormField(
                 decoration: const InputDecoration(
-                  labelText: 'Price',
+                  labelText: 'Price (Rp)',
                   border: OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.number,
@@ -115,7 +145,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
               // Detail
               TextFormField(
                 decoration: const InputDecoration(
-                  labelText: 'Additional Details',
+                  labelText: 'Additional Details (Optional)',
                   border: OutlineInputBorder(),
                 ),
                 maxLines: 3,
@@ -134,9 +164,9 @@ class _ProductFormPageState extends State<ProductFormPage> {
                   if (value == null || value.isEmpty) {
                     return 'Thumbnail URL cannot be empty';
                   }
-                  final pattern = r'^(https?:\/\/).+\.(jpg|jpeg|png|gif)$';
-                  if (!RegExp(pattern).hasMatch(value)) {
-                    return 'Invalid URL format';
+                  final pattern = r'^(https?:\/\/).+\.(jpg|jpeg|png|gif|webp)$';
+                  if (!RegExp(pattern, caseSensitive: false).hasMatch(value)) {
+                    return 'Invalid URL format (must be image link)';
                   }
                   return null;
                 },
@@ -151,21 +181,27 @@ class _ProductFormPageState extends State<ProductFormPage> {
                 ),
                 value: _category,
                 items: _categories
-                    .map((cat) => DropdownMenuItem(value: cat, child: Text(cat)))
+                    .map((cat) => DropdownMenuItem(
+                          value: cat['value'],
+                          child: Text(cat['label']!),
+                        ))
                     .toList(),
                 onChanged: (value) => setState(() => _category = value!),
               ),
               const SizedBox(height: 16),
 
-              // Product Group
+              // Sport/Product Group
               DropdownButtonFormField<String>(
                 decoration: const InputDecoration(
-                  labelText: 'Product Group',
+                  labelText: 'Sport Category',
                   border: OutlineInputBorder(),
                 ),
                 value: _productGroup,
-                items: _productGroups
-                    .map((group) => DropdownMenuItem(value: group, child: Text(group)))
+                items: _sportChoices
+                    .map((sport) => DropdownMenuItem(
+                          value: sport['value'],
+                          child: Text(sport['label']!),
+                        ))
                     .toList(),
                 onChanged: (value) => setState(() => _productGroup = value!),
               ),
@@ -179,7 +215,10 @@ class _ProductFormPageState extends State<ProductFormPage> {
                 ),
                 value: _size,
                 items: _sizes
-                    .map((size) => DropdownMenuItem(value: size, child: Text(size)))
+                    .map((size) => DropdownMenuItem(
+                          value: size['value'],
+                          child: Text('${size['value']} - ${size['label']}'),
+                        ))
                     .toList(),
                 onChanged: (value) => setState(() => _size = value!),
               ),
@@ -193,7 +232,10 @@ class _ProductFormPageState extends State<ProductFormPage> {
                 ),
                 value: _gender,
                 items: _genders
-                    .map((gender) => DropdownMenuItem(value: gender, child: Text(gender)))
+                    .map((gender) => DropdownMenuItem(
+                          value: gender['value'],
+                          child: Text(gender['label']!),
+                        ))
                     .toList(),
                 onChanged: (value) => setState(() => _gender = value!),
               ),
@@ -224,6 +266,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
               // Featured Switch
               SwitchListTile(
                 title: const Text('Featured Product?'),
+                subtitle: const Text('Show in featured section'),
                 value: _isFeatured,
                 activeColor: Colors.black,
                 onChanged: (value) => setState(() => _isFeatured = value),
@@ -232,6 +275,7 @@ class _ProductFormPageState extends State<ProductFormPage> {
               // Available Switch
               SwitchListTile(
                 title: const Text('Available for Sale?'),
+                subtitle: const Text('Product can be purchased'),
                 value: _isAvailable,
                 activeColor: Colors.black,
                 onChanged: (value) => setState(() => _isAvailable = value),

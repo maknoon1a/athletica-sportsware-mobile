@@ -107,7 +107,7 @@ class ProductEntryCard extends StatelessWidget {
 
                       // Description
                       Text(
-                        product.description,
+                        product.description ?? 'No description available',
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(

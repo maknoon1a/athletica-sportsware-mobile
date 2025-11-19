@@ -12,8 +12,8 @@ class ProductEntry {
     String id;
     String name;
     int price;
-    String description;
-    String detail;
+    String? description;
+    String? detail;
     String thumbnail;
     String category;
     String productGroup;
@@ -22,14 +22,16 @@ class ProductEntry {
     String gender;
     int stockQuantity;
     bool isAvailable;
-    int userId;
+    int viewsCount;
+    int soldCount;
+    int? userId;
 
     ProductEntry({
         required this.id,
         required this.name,
         required this.price,
-        required this.description,
-        required this.detail,
+        this.description,
+        this.detail,
         required this.thumbnail,
         required this.category,
         required this.productGroup,
@@ -38,7 +40,9 @@ class ProductEntry {
         required this.gender,
         required this.stockQuantity,
         required this.isAvailable,
-        required this.userId,
+        required this.viewsCount,
+        required this.soldCount,
+        this.userId,
     });
 
     factory ProductEntry.fromJson(Map<String, dynamic> json) => ProductEntry(
@@ -55,6 +59,8 @@ class ProductEntry {
         gender: json["gender"],
         stockQuantity: json["stock_quantity"],
         isAvailable: json["is_available"],
+        viewsCount: json["views_count"] ?? 0,
+        soldCount: json["sold_count"] ?? 0,
         userId: json["user_id"],
     );
 
@@ -72,6 +78,8 @@ class ProductEntry {
         "gender": gender,
         "stock_quantity": stockQuantity,
         "is_available": isAvailable,
+        "views_count": viewsCount,
+        "sold_count": soldCount,
         "user_id": userId,
     };
 }

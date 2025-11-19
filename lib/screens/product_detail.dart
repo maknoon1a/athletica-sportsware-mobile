@@ -122,6 +122,8 @@ class ProductDetailPage extends StatelessWidget {
                     product.isAvailable ? 'In Stock' : 'Out of Stock',
                     valueColor: product.isAvailable ? Colors.green : Colors.red,
                   ),
+                  _buildDetailRow('Views', '${product.viewsCount} views'),
+                  _buildDetailRow('Sold', '${product.soldCount} items'),
 
                   const SizedBox(height: 20),
                   const Divider(thickness: 1),
@@ -138,7 +140,7 @@ class ProductDetailPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    product.description,
+                    product.description ?? 'No description available',
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.grey[800],
@@ -148,7 +150,7 @@ class ProductDetailPage extends StatelessWidget {
                   const SizedBox(height: 20),
 
                   // Detail Section (if exists)
-                  if (product.detail.isNotEmpty) ...[
+                  if (product.detail != null && product.detail!.isNotEmpty) ...[
                     const Divider(thickness: 1),
                     const SizedBox(height: 16),
                     const Text(
@@ -161,7 +163,7 @@ class ProductDetailPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      product.detail,
+                      product.detail!,
                       style: TextStyle(
                         fontSize: 16,
                         color: Colors.grey[800],
