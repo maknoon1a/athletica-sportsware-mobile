@@ -66,3 +66,84 @@ Pengguna mengisi form di Flutter, lalu data dikirim ke Django melalui request PO
 
 6. Mekanisme autentikasi login, register, dan logout
 Saat register, Flutter mengirim data akun baru ke Django untuk dibuatkan user di database. Ketika login, Flutter mengirim username dan password menggunakan CookieRequest, Django memverifikasi, lalu mengembalikan session cookie yang disimpan di Flutter sehingga setiap request selanjutnya dianggap telah login. Selama session masih aktif, Django mengenali user dan mengizinkan akses ke endpoint yang membutuhkan autentikasi. Logout dilakukan dengan memanggil endpoint Django yang menghapus session, dan Flutter menghapus status login lalu kembali ke halaman login.
+
+(maaf part ini telat kak ngurusin push yang ga ada :)) 
+- Install django-cors-headers dengan:
+  pip install django-cors-headers
+
+- Tambahkan 'corsheaders' ke INSTALLED_APPS di settings.py
+
+- Tambahkan 'corsheaders.middleware.CorsMiddleware' sebagai middleware paling atas di MIDDLEWARE
+
+- Set di settings.py:
+  CORS_ALLOW_ALL_ORIGINS = True
+  CORS_ALLOW_CREDENTIALS = True
+
+- Update juga ALLOWED_HOSTS agar sesuai environment
+
+- Buat app baru authentication dengan:
+  python manage.py startapp authentication
+
+- Buat tiga view di authentication/views.py:
+  - login(): autentikasi user dan return JSON
+  - register(): membuat user baru dengan validasi
+  - logout(): logout user
+  (Semua view menggunakan decorator @csrf_exempt)
+
+- Tambahkan routing di authentication/urls.py:
+  path('login/'), path('register/'), path('logout/')
+
+- Include authentication.urls di root urls.py dengan prefix 'auth/'
+
+- Buat view show_json() di main/views.py untuk:
+  Query semua Products dan serialize menjadi JSON
+
+- Buat view proxy_image() untuk men-download gambar dari URL eksternal dan return ke Flutter (bypass CORS)
+
+- Buat view create_product_flutter() untuk menerima POST JSON, sanitasi input dengan strip_tags(), dan membuat objek Product
+
+- Daftarkan semua endpoint di main/urls.py:
+  'json/', 'proxy-image/', 'create-flutter/'
+
+- Install dependency pbp_django_auth dan provider di pubspec.yaml
+
+- Jalankan:
+  flutter pub get
+
+- Setup Provider di main.dart:
+  Wrap MaterialApp dengan Provider yang create CookieRequest
+  Ubah home menjadi LoginPage
+
+- Buat model product_entry.dart berisi:
+  Class ProductEntry
+  factory fromJson()
+  method toJson()
+  fungsi productEntryFromJson() untuk parse List JSON
+
+- Buat login.dart & register.dart di folder screens/:
+  Integrasi dengan endpoint Django menggunakan request.login() dan request.postJson()
+
+- Buat menu.dart berisi:
+  Welcome text
+  GridView 2x2 dengan MenuCard (View Products, Add Product, Logout)
+  Widget MenuCard ada di file yang sama dengan navigasi & logout sudah terhubung
+
+- Buat product_list.dart dengan:
+  Dua tombol filter (All Products & My Products)
+  FutureBuilder yang fetch dari endpoint /json/
+  setState() untuk filter berdasarkan userId
+
+- Buat product_entry_card.dart:
+  Widget card horizontal menampilkan thumbnail + informasi produk
+
+- Buat product_detail.dart:
+  Terima ProductEntry dan tampilkan semua atribut dalam layout terstruktur
+
+- Update form_page.dart:
+  Tambahkan semua field produk
+  Tambahkan validasi
+  Integrasi submit dengan endpoint /create-flutter/ pakai request.postJson()
+
+- Buat left_drawer.dart berisi:
+  DrawerHeader
+  ListTile navigasi ke Home, Product List, dan Add Product
