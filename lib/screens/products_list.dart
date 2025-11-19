@@ -21,7 +21,7 @@ class _ProductListPageState extends State<ProductListPage> {
     // TODO: Ganti URL sesuai deployment lo
     // Untuk emulator Android: http://10.0.2.2:8000/json/
     // Untuk Chrome: http://localhost:8000/json/
-    final response = await request.get('http://localhost:8000/json/');
+    final response = await request.get('http://localhost:8000/show-json/');
 
     var data = response;
 
