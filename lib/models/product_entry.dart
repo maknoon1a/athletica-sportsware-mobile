@@ -4,16 +4,17 @@
 
 import 'dart:convert';
 
-List<ProductEntry> productEntryFromJson(String str) => List<ProductEntry>.from(json.decode(str).map((x) => ProductEntry.fromJson(x)));
+ProductEntry productEntryFromJson(String str) => ProductEntry.fromJson(json.decode(str));
 
-String productEntryToJson(List<ProductEntry> data) => json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
+String productEntryToJson(ProductEntry data) => json.encode(data.toJson());
 
 class ProductEntry {
     String id;
+    int userId;
     String name;
     int price;
-    String? description;
-    String? detail;
+    String description;
+    String detail;
     String thumbnail;
     String category;
     String productGroup;
@@ -24,14 +25,14 @@ class ProductEntry {
     bool isAvailable;
     int viewsCount;
     int soldCount;
-    int? userId;
 
     ProductEntry({
         required this.id,
+        required this.userId,
         required this.name,
         required this.price,
-        this.description,
-        this.detail,
+        required this.description,
+        required this.detail,
         required this.thumbnail,
         required this.category,
         required this.productGroup,
@@ -42,11 +43,11 @@ class ProductEntry {
         required this.isAvailable,
         required this.viewsCount,
         required this.soldCount,
-        this.userId,
     });
 
     factory ProductEntry.fromJson(Map<String, dynamic> json) => ProductEntry(
         id: json["id"],
+        userId: json["user_id"],
         name: json["name"],
         price: json["price"],
         description: json["description"],
@@ -59,13 +60,13 @@ class ProductEntry {
         gender: json["gender"],
         stockQuantity: json["stock_quantity"],
         isAvailable: json["is_available"],
-        viewsCount: json["views_count"] ?? 0,
-        soldCount: json["sold_count"] ?? 0,
-        userId: json["user_id"],
+        viewsCount: json["views_count"],
+        soldCount: json["sold_count"],
     );
 
     Map<String, dynamic> toJson() => {
         "id": id,
+        "user_id": userId,
         "name": name,
         "price": price,
         "description": description,
@@ -80,6 +81,5 @@ class ProductEntry {
         "is_available": isAvailable,
         "views_count": viewsCount,
         "sold_count": soldCount,
-        "user_id": userId,
     };
 }
